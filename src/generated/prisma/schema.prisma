@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  isOwner   Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  progress  Progress[]
+}
+
+model Media {
+  id          Int        @id @default(autoincrement())
+  title       String
+  type        String // "movie" atau "series"
+  seriesTitle String?
+  season      Int?
+  episode     Int?
+  year        Int?
+  description String?
+  durationSec Int        @default(0)
+  width       Int        @default(0)
+  height      Int        @default(0)
+  sizeBytes   BigInt     @default(0)
+  mime        String
+  videoCodec  String?
+  audioCodec  String?
+  filePath    String     @unique
+  streamUrl   String?
+  posterPath  String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  progress    Progress[]
+  subtitles   Subtitle[]
+}
+
+model Progress {
+  userId      Int
+  mediaId     Int
+  positionSec Float
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media       Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([userId, mediaId])
+}
+
+model Subtitle {
+  id       Int    @id @default(autoincrement())
+  mediaId  Int
+  language String @default("und")
+  label    String
+  filePath String @unique
+  media    Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@index([mediaId])
+}
