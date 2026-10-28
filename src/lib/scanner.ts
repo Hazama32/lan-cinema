@@ -336,7 +336,7 @@ export async function scanLibrary() {
     }
   }
 
-  const ids = new Set((await prisma.media.findMany({ select: { id: true } })).map((m) => m.id));
+  const ids = new Set((await prisma.media.findMany({ select: { id: true } })).map((m: { id: number }) => m.id));
   for (const f of await fs.readdir(POSTER_DIR).catch(() => [] as string[])) {
     if (!ids.has(Number(f.split("-")[0]))) await fs.rm(path.join(POSTER_DIR, f), { force: true });
   }
